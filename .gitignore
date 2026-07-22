@@ -1,0 +1,38 @@
+# compiled output
+/dist
+/node_modules
+/build
+
+# logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# env
+.env
+.env.local
+.env.*.local
+
+# test
+/coverage
+/.nyc_output
+
+# cheat sheets (private notes)
+/cheat-sheets
+
+# misc
+*.tgz
