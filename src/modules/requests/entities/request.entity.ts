@@ -3,6 +3,7 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -40,6 +41,8 @@ export enum RequestSentiment {
 }
 
 @Entity('requests')
+@Index(['tenantId', 'createdAt'])
+@Index(['tenantId', 'status'])
 export class Request {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
