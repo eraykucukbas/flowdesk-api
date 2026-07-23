@@ -1,1 +1,2 @@
-// auth.guard, roles.guard will be added here
+export { JwtAuthGuard } from './jwt-auth.guard';
+export { RolesGuard } from './roles.guard';
