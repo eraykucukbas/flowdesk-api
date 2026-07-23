@@ -1,7 +1,8 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { IRequestRepository } from './requests.repository.interface';
 import { REQUEST_REPOSITORY } from './requests.repository.interface';
 import { Request } from './entities/request.entity';
+import { RequestNotFoundException } from '../../common/exceptions/request-not-found.exception';
 import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 import { PaginatedResult } from '../../common/pagination/paginated';
 
@@ -27,7 +28,7 @@ export class RequestsService {
   async findOne(tenantId: string, id: string): Promise<Request> {
     const request = await this.repo.findById(tenantId, id);
     if (!request) {
-      throw new NotFoundException(`Request ${id} not found`);
+      throw new RequestNotFoundException(id);
     }
     return request;
   }

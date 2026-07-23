@@ -1,1 +1,1 @@
-// global exception filter will be added here
+export { GlobalExceptionFilter } from './http-exception.filter';
