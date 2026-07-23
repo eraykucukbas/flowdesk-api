@@ -11,6 +11,7 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
@@ -19,6 +20,7 @@ import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 // TODO: Replace hardcoded tenantId with JWT-extracted value (task 4.5)
 const TEMP_TENANT_ID = '00000000-0000-0000-0000-000000000000';
 
+@ApiTags('Requests')
 @Controller('v1/requests')
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
