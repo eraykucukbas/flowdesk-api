@@ -3,6 +3,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { envSchema, Env } from './config/env.validation';
 import { HealthModule } from './modules/health/health.module';
+import { TenantsModule } from './modules/tenants/tenants.module';
+import { UsersModule } from './modules/users/users.module';
+import { RequestsModule } from './modules/requests/requests.module';
 
 @Module({
   imports: [
@@ -29,6 +32,9 @@ import { HealthModule } from './modules/health/health.module';
       }),
     }),
     HealthModule,
+    TenantsModule,
+    UsersModule,
+    RequestsModule,
   ],
 })
 export class AppModule {}
