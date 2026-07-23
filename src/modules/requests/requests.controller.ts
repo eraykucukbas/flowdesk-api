@@ -30,7 +30,7 @@ export class RequestsController {
 
   @Get()
   findAll(@Query() query: ListRequestsQueryDto) {
-    return this.requestsService.findAll(TEMP_TENANT_ID);
+    return this.requestsService.findAll(TEMP_TENANT_ID, query);
   }
 
   @Get(':id')

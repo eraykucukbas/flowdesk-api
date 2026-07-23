@@ -2,6 +2,8 @@ import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import type { IRequestRepository } from './requests.repository.interface';
 import { REQUEST_REPOSITORY } from './requests.repository.interface';
 import { Request } from './entities/request.entity';
+import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
+import { PaginatedResult } from '../../common/pagination/paginated';
 
 @Injectable()
 export class RequestsService {
@@ -15,8 +17,11 @@ export class RequestsService {
     return this.repo.save(request);
   }
 
-  async findAll(tenantId: string): Promise<Request[]> {
-    return this.repo.findAll(tenantId);
+  async findAll(
+    tenantId: string,
+    query: ListRequestsQueryDto,
+  ): Promise<PaginatedResult<Request>> {
+    return this.repo.findPaginated(tenantId, query);
   }
 
   async findOne(tenantId: string, id: string): Promise<Request> {
