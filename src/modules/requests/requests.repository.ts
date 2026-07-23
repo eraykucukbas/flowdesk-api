@@ -3,7 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Request } from './entities/request.entity';
 import { IRequestRepository } from './requests.repository.interface';
-import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
+import {
+  ListRequestsQueryDto,
+  parseSort,
+} from './dto/list-requests-query.dto';
 import {
   PaginatedResult,
   decodeCursor,
@@ -38,18 +41,21 @@ export class TypeOrmRequestRepository implements IRequestRepository {
   ): Promise<PaginatedResult<Request>> {
     const limit = query.limit ?? 20;
 
+    const { field: sortField, order: sortOrder } = parseSort(query.sort);
+
     const qb = this.repo
       .createQueryBuilder('request')
       .where('request.tenantId = :tenantId', { tenantId })
-      .orderBy('request.createdAt', 'DESC')
-      .addOrderBy('request.id', 'DESC')
-      .take(limit + 1); // fetch one extra to determine if there's a next page
+      .orderBy(`request.${sortField}`, sortOrder)
+      .addOrderBy('request.id', sortOrder)
+      .take(limit + 1);
 
-    // Apply cursor
+    // Apply cursor (always based on createdAt + id for consistency)
     if (query.cursor) {
       const { createdAt, id } = decodeCursor(query.cursor);
+      const op = sortOrder === 'DESC' ? '<' : '>';
       qb.andWhere(
-        '(request.createdAt < :cursorDate OR (request.createdAt = :cursorDate AND request.id < :cursorId))',
+        `(request.createdAt ${op} :cursorDate OR (request.createdAt = :cursorDate AND request.id ${op} :cursorId))`,
         { cursorDate: createdAt, cursorId: id },
       );
     }
