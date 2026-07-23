@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { envSchema } from './config/env.validation';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { envSchema, Env } from './config/env.validation';
 import { HealthModule } from './modules/health/health.module';
 
 @Module({
@@ -17,6 +18,15 @@ import { HealthModule } from './modules/health/health.module';
         }
         return result.data;
       },
+    }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env>) => ({
+        type: 'postgres' as const,
+        url: config.get('DATABASE_URL'),
+        autoLoadEntities: true,
+        synchronize: false,
+      }),
     }),
     HealthModule,
   ],

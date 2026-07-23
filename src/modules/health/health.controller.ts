@@ -1,15 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, HealthCheckService, TypeOrmHealthIndicator } from '@nestjs/terminus';
 
 @Controller('health')
 export class HealthController {
   private readonly startedAt = Date.now();
 
+  constructor(
+    private readonly health: HealthCheckService,
+    private readonly db: TypeOrmHealthIndicator,
+  ) {}
+
   @Get()
-  check() {
+  @HealthCheck()
+  async check() {
+    const result = await this.health.check([
+      () => this.db.pingCheck('database'),
+    ]);
+
     return {
-      status: 'ok',
+      ...result,
       uptime: Math.floor((Date.now() - this.startedAt) / 1000),
-      db: 'not_configured',
     };
   }
 }
