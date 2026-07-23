@@ -40,7 +40,6 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     }
 
     const body: Record<string, unknown> = {
-      type: `https://httpstatuses.com/${status}`,
       title,
       status,
       detail,
