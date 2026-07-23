@@ -25,7 +25,8 @@
     "migration:run": "npm run build && npx typeorm migration:run -d dist/database/data-source.js",
     "migration:revert": "npm run build && npx typeorm migration:revert -d dist/database/data-source.js",
     "migration:run:prod": "typeorm migration:run -d dist/database/data-source.js",
-    "seed": "npm run build && node dist/database/seeds/seed.js"
+    "seed": "npm run build && node dist/database/seeds/seed.js",
+    "demo:n-plus-one": "npm run build && node dist/database/scripts/n-plus-one-demo.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
