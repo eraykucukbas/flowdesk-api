@@ -11,46 +11,59 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import { CurrentUser, Roles } from '../../common/decorators';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 
-// TODO: Replace hardcoded tenantId with JWT-extracted value (task 4.5)
-const TEMP_TENANT_ID = '00000000-0000-0000-0000-000000000000';
-
 @ApiTags('Requests')
+@ApiBearerAuth()
 @Controller('v1/requests')
 export class RequestsController {
   constructor(private readonly requestsService: RequestsService) {}
 
   @Post()
-  create(@Body() dto: CreateRequestDto) {
-    return this.requestsService.create(TEMP_TENANT_ID, dto);
+  create(
+    @CurrentUser('tenantId') tenantId: string,
+    @Body() dto: CreateRequestDto,
+  ) {
+    return this.requestsService.create(tenantId, dto);
   }
 
   @Get()
-  findAll(@Query() query: ListRequestsQueryDto) {
-    return this.requestsService.findAll(TEMP_TENANT_ID, query);
+  findAll(
+    @CurrentUser('tenantId') tenantId: string,
+    @Query() query: ListRequestsQueryDto,
+  ) {
+    return this.requestsService.findAll(tenantId, query);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.requestsService.findOne(TEMP_TENANT_ID, id);
+  findOne(
+    @CurrentUser('tenantId') tenantId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.requestsService.findOne(tenantId, id);
   }
 
   @Patch(':id')
   update(
+    @CurrentUser('tenantId') tenantId: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() dto: UpdateRequestDto,
   ) {
-    return this.requestsService.update(TEMP_TENANT_ID, id, dto);
+    return this.requestsService.update(tenantId, id, dto);
   }
 
   @Delete(':id')
+  @Roles('ADMIN')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.requestsService.remove(TEMP_TENANT_ID, id);
+  remove(
+    @CurrentUser('tenantId') tenantId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ) {
+    return this.requestsService.remove(tenantId, id);
   }
 }

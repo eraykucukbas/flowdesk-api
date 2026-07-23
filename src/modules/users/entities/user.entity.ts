@@ -31,6 +31,9 @@ export class User {
   @Column({ type: 'enum', enum: UserRole })
   role!: UserRole;
 
+  @Column({ name: 'refresh_token_hash', type: 'varchar', nullable: true })
+  refreshTokenHash!: string | null;
+
   @ManyToOne(() => Tenant, (tenant) => tenant.users, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'tenant_id' })
   tenant!: Tenant;
