@@ -74,3 +74,43 @@ Index directly located the 587 matching rows without scanning unrelated data. **
 ### request_events index
 
 `request_events (request_id)` — when loading a request's event history, this index prevents a full scan of the events table. Without it, fetching events for one request would scan every event across all requests.
+
+---
+
+## N+1 Problem — requests + events (20 requests)
+
+### The problem
+
+Loading requests and their events naively causes the ORM to fire one query per request to fetch its events. For 20 requests, this results in **21 queries** (1 + N).
+
+```
+// BAD: loop fires a query for each request
+const requests = await repo.find({ where: { tenantId }, take: 20 });
+for (const req of requests) {
+  req.events = await eventRepo.find({ where: { requestId: req.id } });
+}
+// Result: 21 queries
+```
+
+### The fix
+
+Using `relations: ['events']` tells TypeORM to load the association with a JOIN — reducing the total to **2 queries** (TypeORM splits it into a main query + a joined query).
+
+```
+// GOOD: single call, TypeORM handles the join
+const requests = await repo.find({
+  where: { tenantId },
+  relations: ['events'],
+  take: 20,
+});
+// Result: 2 queries
+```
+
+### Measured results
+
+| Approach | Query count |
+|---|---|
+| N+1 (loop) | 21 |
+| relations (join) | 2 |
+
+At 20 requests the difference is 21 vs 2 queries. At 100 requests it would be 101 vs 2. The N+1 pattern scales linearly with result count — the join does not.
