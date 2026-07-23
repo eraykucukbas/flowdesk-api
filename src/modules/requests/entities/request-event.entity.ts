@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -15,6 +16,7 @@ export enum RequestEventType {
 }
 
 @Entity('request_events')
+@Index(['requestId'])
 export class RequestEvent {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
