@@ -59,7 +59,7 @@ export class Request {
   @Column({ type: 'enum', enum: RequestStatus, default: RequestStatus.OPEN })
   status!: RequestStatus;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   category!: string | null;
 
   @Column({ type: 'enum', enum: RequestUrgency, nullable: true })
@@ -68,7 +68,7 @@ export class Request {
   @Column({ type: 'enum', enum: RequestSentiment, nullable: true })
   sentiment!: RequestSentiment | null;
 
-  @Column({ name: 'external_message_id', nullable: true, unique: true })
+  @Column({ type: 'varchar', name: 'external_message_id', nullable: true, unique: true })
   externalMessageId!: string | null;
 
   @ManyToOne(() => Tenant, (tenant) => tenant.requests, { onDelete: 'RESTRICT' })
@@ -78,13 +78,13 @@ export class Request {
   @OneToMany(() => RequestEvent, (event) => event.request, { cascade: true })
   events!: RequestEvent[];
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt!: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt!: Date;
 
-  @DeleteDateColumn({ name: 'deleted_at' })
+  @DeleteDateColumn({ name: 'deleted_at', type: 'timestamptz' })
   deletedAt!: Date | null;
 
   // --- State transition methods ---
