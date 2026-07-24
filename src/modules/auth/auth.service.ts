@@ -11,6 +11,7 @@ import type { IUserRepository } from '../users/users.repository.interface';
 import { USER_REPOSITORY } from '../users/users.repository.interface';
 import type { ITenantRepository } from '../tenants/tenants.repository.interface';
 import { TENANT_REPOSITORY } from '../tenants/tenants.repository.interface';
+import { User } from '../users/entities/user.entity';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Env } from '../../config/env.validation';
@@ -31,20 +32,15 @@ export class AuthService {
     const existing = await this.userRepo.findByEmail(dto.email);
     if (existing) throw new ConflictException('Email already registered');
 
-    const tenant = this.tenantRepo.create({ name: dto.tenantName });
-    const savedTenant = await this.tenantRepo.save(tenant);
-
     const passwordHash = await argon2.hash(dto.password);
-    const user = this.userRepo.create({
-      tenantId: savedTenant.id,
+    const { tenant, user } = await this.tenantRepo.createTenantWithOwner({
+      tenantName: dto.tenantName,
       email: dto.email,
       passwordHash,
-      role: dto.role,
     });
-    const savedUser = await this.userRepo.save(user);
 
-    const tokens = await this.generateTokens(savedUser.id, savedTenant.id, savedUser.role);
-    await this.updateRefreshTokenHash(savedUser, tokens.refreshToken);
+    const tokens = await this.generateTokens(user.id, tenant.id, user.role);
+    await this.updateRefreshTokenHash(user, tokens.refreshToken);
 
     return tokens;
   }
@@ -103,7 +99,10 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  private async updateRefreshTokenHash(user: any, refreshToken: string) {
+  private async updateRefreshTokenHash(
+    user: User,
+    refreshToken: string,
+  ): Promise<void> {
     user.refreshTokenHash = await argon2.hash(refreshToken);
     await this.userRepo.save(user);
   }

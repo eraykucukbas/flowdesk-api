@@ -16,6 +16,7 @@ import { CurrentUser, Roles } from '../../common/decorators';
 import { RequestsService } from './requests.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
+import { ChangeStatusDto } from './dto/change-status.dto';
 import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 
 @ApiTags('Requests')
@@ -55,6 +56,15 @@ export class RequestsController {
     @Body() dto: UpdateRequestDto,
   ) {
     return this.requestsService.update(tenantId, id, dto);
+  }
+
+  @Patch(':id/status')
+  changeStatus(
+    @CurrentUser('tenantId') tenantId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: ChangeStatusDto,
+  ) {
+    return this.requestsService.changeStatus(tenantId, id, dto.status);
   }
 
   @Delete(':id')

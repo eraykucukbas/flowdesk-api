@@ -1,9 +1,4 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import {
-  RequestStatus,
-  RequestUrgency,
-  RequestSentiment,
-} from '../entities/request.entity';
+import { IsOptional, IsString } from 'class-validator';
 
 export class UpdateRequestDto {
   @IsString()
@@ -13,20 +8,4 @@ export class UpdateRequestDto {
   @IsString()
   @IsOptional()
   body?: string;
-
-  @IsEnum(RequestStatus)
-  @IsOptional()
-  status?: RequestStatus;
-
-  @IsString()
-  @IsOptional()
-  category?: string;
-
-  @IsEnum(RequestUrgency)
-  @IsOptional()
-  urgency?: RequestUrgency;
-
-  @IsEnum(RequestSentiment)
-  @IsOptional()
-  sentiment?: RequestSentiment;
 }
