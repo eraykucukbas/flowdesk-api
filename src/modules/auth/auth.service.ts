@@ -82,6 +82,14 @@ export class AuthService {
     return tokens;
   }
 
+  async logout(userId: string): Promise<void> {
+    const user = await this.userRepo.findById(userId);
+    if (user) {
+      user.refreshTokenHash = null;
+      await this.userRepo.save(user);
+    }
+  }
+
   private async generateTokens(userId: string, tenantId: string, role: string) {
     const payload: JwtPayload = { sub: userId, tenantId, role };
 
