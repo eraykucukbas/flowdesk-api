@@ -1,8 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import type { IRequestRepository } from './requests.repository.interface';
 import { REQUEST_REPOSITORY } from './requests.repository.interface';
-import { Request } from './entities/request.entity';
+import { Request, RequestStatus } from './entities/request.entity';
 import { RequestNotFoundException } from '../../common/exceptions/request-not-found.exception';
+import { UpdateRequestDto } from './dto/update-request.dto';
 import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 import { PaginatedResult } from '../../common/pagination/paginated';
 
@@ -36,10 +37,42 @@ export class RequestsService {
   async update(
     tenantId: string,
     id: string,
-    data: Partial<Request>,
+    dto: UpdateRequestDto,
   ): Promise<Request> {
     const request = await this.findOne(tenantId, id);
-    Object.assign(request, data);
+    if (dto.title !== undefined) request.title = dto.title;
+    if (dto.body !== undefined) request.body = dto.body;
+    return this.repo.save(request);
+  }
+
+  async changeStatus(
+    tenantId: string,
+    id: string,
+    targetStatus: RequestStatus,
+  ): Promise<Request> {
+    const request = await this.findOne(tenantId, id);
+
+    try {
+      switch (targetStatus) {
+        case RequestStatus.IN_PROGRESS:
+          request.markInProgress();
+          break;
+        case RequestStatus.RESOLVED:
+          request.markResolved();
+          break;
+        case RequestStatus.CLOSED:
+          request.close();
+          break;
+        case RequestStatus.OPEN:
+          request.reopen();
+          break;
+      }
+    } catch (err) {
+      throw new BadRequestException(
+        err instanceof Error ? err.message : 'Invalid status transition',
+      );
+    }
+
     return this.repo.save(request);
   }
 
