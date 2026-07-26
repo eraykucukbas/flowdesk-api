@@ -1,9 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { envSchema, Env } from './config/env.validation';
 import { HealthModule } from './modules/health/health.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
@@ -11,6 +12,7 @@ import { UsersModule } from './modules/users/users.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard, RolesGuard } from './common/guards';
+import { TenantScopeInterceptor } from './common/interceptors';
 
 @Module({
   imports: [
@@ -56,6 +58,10 @@ import { JwtAuthGuard, RolesGuard } from './common/guards';
         },
       }),
     }),
+    ThrottlerModule.forRoot([
+      { name: 'short', ttl: 60000, limit: 20 },
+      { name: 'auth', ttl: 60000, limit: 5 },
+    ]),
     HealthModule,
     TenantsModule,
     UsersModule,
@@ -65,6 +71,8 @@ import { JwtAuthGuard, RolesGuard } from './common/guards';
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_GUARD, useClass: RolesGuard },
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantScopeInterceptor },
   ],
 })
 export class AppModule {}
