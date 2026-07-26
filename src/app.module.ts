@@ -11,6 +11,7 @@ import { TenantsModule } from './modules/tenants/tenants.module';
 import { UsersModule } from './modules/users/users.module';
 import { RequestsModule } from './modules/requests/requests.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { JwtAuthGuard, RolesGuard } from './common/guards';
 import { TenantScopeInterceptor } from './common/interceptors';
 
@@ -67,6 +68,7 @@ import { TenantScopeInterceptor } from './common/interceptors';
     UsersModule,
     RequestsModule,
     AuthModule,
+    WebhooksModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: JwtAuthGuard },
