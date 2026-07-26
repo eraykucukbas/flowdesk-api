@@ -1,7 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import type { IClassifier, ClassificationResult } from './classification.interface';
+import type {
+  IClassifier,
+  ClassificationResult,
+} from './classification.interface';
 import { CLASSIFIER } from './classification.interface';
-import { RequestUrgency, RequestSentiment } from '../requests/entities/request.entity';
+import {
+  RequestUrgency,
+  RequestSentiment,
+} from '../requests/entities/request.entity';
 
 const FALLBACK_RESULT: ClassificationResult = {
   category: 'UNCLASSIFIED',

@@ -1,4 +1,7 @@
-import { RequestUrgency, RequestSentiment } from '../requests/entities/request.entity';
+import {
+  RequestUrgency,
+  RequestSentiment,
+} from '../requests/entities/request.entity';
 
 export interface TokenUsage {
   inputTokens: number;

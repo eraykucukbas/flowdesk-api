@@ -1,16 +1,23 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import type { IClassifier, ClassificationResult, TokenUsage } from '../classification.interface';
+import type {
+  IClassifier,
+  ClassificationResult,
+  TokenUsage,
+} from '../classification.interface';
 import type { Env } from '../../../config/env.validation';
 import { CLASSIFY_V1_PROMPT } from '../prompts/classify-v1';
-import { RequestUrgency, RequestSentiment } from '../../requests/entities/request.entity';
+import {
+  RequestUrgency,
+  RequestSentiment,
+} from '../../requests/entities/request.entity';
 
 const VALID_URGENCIES = new Set(Object.values(RequestUrgency));
 const VALID_SENTIMENTS = new Set(Object.values(RequestSentiment));
 
 // Gemini 2.0 Flash pricing (per 1M tokens)
-const INPUT_COST_PER_MILLION = 0.10;
-const OUTPUT_COST_PER_MILLION = 0.40;
+const INPUT_COST_PER_MILLION = 0.1;
+const OUTPUT_COST_PER_MILLION = 0.4;
 
 @Injectable()
 export class GeminiProvider implements IClassifier {
@@ -58,8 +65,7 @@ export class GeminiProvider implements IClassifier {
 
   private extractTokenUsage(data: Record<string, unknown>): TokenUsage {
     const usage = data.usageMetadata as
-      | { promptTokenCount?: number; candidatesTokenCount?: number }
-      | undefined;
+      { promptTokenCount?: number; candidatesTokenCount?: number } | undefined;
 
     const inputTokens = usage?.promptTokenCount ?? 0;
     const outputTokens = usage?.candidatesTokenCount ?? 0;
@@ -75,9 +81,7 @@ export class GeminiProvider implements IClassifier {
     };
   }
 
-  private parseResponse(
-    raw: string,
-  ): Omit<ClassificationResult, 'tokenUsage'> {
+  private parseResponse(raw: string): Omit<ClassificationResult, 'tokenUsage'> {
     const parsed = JSON.parse(raw);
 
     if (

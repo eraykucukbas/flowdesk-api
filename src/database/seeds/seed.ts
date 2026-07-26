@@ -27,7 +27,9 @@ async function seed() {
   const eventRepo = dataSource.getRepository(RequestEvent);
 
   // Clean existing data (TRUNCATE CASCADE handles FK order)
-  await dataSource.query('TRUNCATE TABLE request_events, requests, users, tenants CASCADE');
+  await dataSource.query(
+    'TRUNCATE TABLE request_events, requests, users, tenants CASCADE',
+  );
 
   // Tenants
   const tenants = await tenantRepo.save([
@@ -62,7 +64,13 @@ async function seed() {
   const statuses = Object.values(RequestStatus);
   const urgencies = Object.values(RequestUrgency);
   const sentiments = Object.values(RequestSentiment);
-  const categories = ['BILLING', 'TECHNICAL', 'GENERAL', 'COMPLAINT', 'FEATURE_REQUEST'];
+  const categories = [
+    'BILLING',
+    'TECHNICAL',
+    'GENERAL',
+    'COMPLAINT',
+    'FEATURE_REQUEST',
+  ];
 
   const batchSize = 500;
   let totalRequests = 0;

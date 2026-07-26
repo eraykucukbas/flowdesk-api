@@ -63,7 +63,9 @@ async function demo() {
 
   console.log(`Fetched ${requests.length} requests with events`);
   console.log(`Total queries: ${counter.count}`);
-  console.log(`(1 for requests + ${requests.length} for events = ${1 + requests.length} expected)\n`);
+  console.log(
+    `(1 for requests + ${requests.length} for events = ${1 + requests.length} expected)\n`,
+  );
 
   // ============================================
   // GOOD: Single query with relations
