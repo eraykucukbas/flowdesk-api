@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { RequestsModule } from '../requests/requests.module';
 import { TenantsModule } from '../tenants/tenants.module';
+import { ClassificationModule } from '../classification/classification.module';
 import { WebhooksController } from './webhooks.controller';
 import { WebhooksService } from './webhooks.service';
 import { WebhookSignatureGuard } from './guards/webhook-signature.guard';
 
 @Module({
-  imports: [RequestsModule, TenantsModule],
+  imports: [RequestsModule, TenantsModule, ClassificationModule],
   controllers: [WebhooksController],
   providers: [WebhooksService, WebhookSignatureGuard],
 })
