@@ -36,7 +36,7 @@ export class TenantScopeInterceptor implements NestInterceptor {
         };
       }
 
-      const { tenantId, ...rest } = obj;
+      const { tenantId, webhookSecret, ...rest } = obj;
       return rest;
     }
 

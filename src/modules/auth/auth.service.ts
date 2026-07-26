@@ -42,7 +42,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user.id, tenant.id, user.role);
     await this.updateRefreshTokenHash(user, tokens.refreshToken);
 
-    return tokens;
+    return { ...tokens, webhookSecret: tenant.webhookSecret };
   }
 
   async login(dto: LoginDto) {
