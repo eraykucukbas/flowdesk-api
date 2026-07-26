@@ -22,7 +22,7 @@ export class Tenant {
   @Column({ unique: true })
   slug!: string;
 
-  @Column({ name: 'webhook_secret', type: 'varchar' })
+  @Column({ name: 'webhook_secret', type: 'varchar', select: false })
   webhookSecret!: string;
 
   @OneToMany(() => User, (user) => user.tenant)
