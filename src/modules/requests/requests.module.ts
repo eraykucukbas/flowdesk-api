@@ -14,6 +14,6 @@ import { REQUEST_REPOSITORY } from './requests.repository.interface';
     RequestsService,
     { provide: REQUEST_REPOSITORY, useClass: TypeOrmRequestRepository },
   ],
-  exports: [RequestsService],
+  exports: [RequestsService, REQUEST_REPOSITORY],
 })
 export class RequestsModule {}
