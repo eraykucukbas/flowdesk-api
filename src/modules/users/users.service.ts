@@ -2,6 +2,7 @@ import { ConflictException, Inject, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import type { IUserRepository } from './users.repository.interface';
 import { USER_REPOSITORY } from './users.repository.interface';
+import { UserRole } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -20,7 +21,7 @@ export class UsersService {
       tenantId,
       email: dto.email,
       passwordHash,
-      role: dto.role,
+      role: UserRole.AGENT,
     });
 
     return this.repo.save(user);
