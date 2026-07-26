@@ -1,8 +1,9 @@
-import { Body, Controller, Headers, Post } from '@nestjs/common';
+import { Body, Controller, Headers, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Public } from '../../common/decorators';
 import { WebhooksService } from './webhooks.service';
 import { InboundWebhookDto } from './dto/inbound-webhook.dto';
+import { WebhookSignatureGuard } from './guards/webhook-signature.guard';
 
 @ApiTags('Webhooks')
 @Controller('v1/webhooks')
@@ -10,6 +11,7 @@ export class WebhooksController {
   constructor(private readonly webhooksService: WebhooksService) {}
 
   @Public()
+  @UseGuards(WebhookSignatureGuard)
   @Post('inbound')
   handleInbound(
     @Headers('x-tenant-id') tenantId: string,
