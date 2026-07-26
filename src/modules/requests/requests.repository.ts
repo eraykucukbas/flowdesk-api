@@ -35,6 +35,16 @@ export class TypeOrmRequestRepository implements IRequestRepository {
     });
   }
 
+  async findByExternalMessageId(
+    tenantId: string,
+    externalMessageId: string,
+  ): Promise<Request | null> {
+    return this.repo.findOne({
+      where: { tenantId, externalMessageId },
+      withDeleted: true,
+    });
+  }
+
   async findPaginated(
     tenantId: string,
     query: ListRequestsQueryDto,

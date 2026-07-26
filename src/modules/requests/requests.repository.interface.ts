@@ -6,6 +6,10 @@ export interface IRequestRepository {
   create(data: Partial<Request>): Request;
   save(request: Request): Promise<Request>;
   findById(tenantId: string, id: string): Promise<Request | null>;
+  findByExternalMessageId(
+    tenantId: string,
+    externalMessageId: string,
+  ): Promise<Request | null>;
   findPaginated(
     tenantId: string,
     query: ListRequestsQueryDto,
