@@ -14,9 +14,7 @@ export class TenantScopeInterceptor implements NestInterceptor {
 
     if (!tenantId) return next.handle();
 
-    return next.handle().pipe(
-      map((data) => this.stripTenantId(data)),
-    );
+    return next.handle().pipe(map((data) => this.stripTenantId(data)));
   }
 
   private stripTenantId(data: unknown): unknown {
@@ -36,7 +34,7 @@ export class TenantScopeInterceptor implements NestInterceptor {
         };
       }
 
-      const { tenantId, ...rest } = obj;
+      const { tenantId: _tenantId, ...rest } = obj;
       return rest;
     }
 

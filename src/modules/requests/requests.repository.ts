@@ -3,10 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Request } from './entities/request.entity';
 import { IRequestRepository } from './requests.repository.interface';
-import {
-  ListRequestsQueryDto,
-  parseSort,
-} from './dto/list-requests-query.dto';
+import { ListRequestsQueryDto, parseSort } from './dto/list-requests-query.dto';
 import {
   PaginatedResult,
   decodeCursor,

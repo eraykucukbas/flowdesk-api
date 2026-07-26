@@ -71,10 +71,17 @@ export class Request {
   @Column({ type: 'enum', enum: RequestSentiment, nullable: true })
   sentiment!: RequestSentiment | null;
 
-  @Column({ type: 'varchar', name: 'external_message_id', nullable: true, unique: true })
+  @Column({
+    type: 'varchar',
+    name: 'external_message_id',
+    nullable: true,
+    unique: true,
+  })
   externalMessageId!: string | null;
 
-  @ManyToOne(() => Tenant, (tenant) => tenant.requests, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => Tenant, (tenant) => tenant.requests, {
+    onDelete: 'RESTRICT',
+  })
   @JoinColumn({ name: 'tenant_id' })
   tenant!: Tenant;
 

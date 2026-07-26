@@ -1,15 +1,25 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClassificationService } from './classification.service';
 import { CLASSIFIER } from './classification.interface';
-import type { IClassifier, ClassificationResult } from './classification.interface';
-import { RequestUrgency, RequestSentiment } from '../requests/entities/request.entity';
+import type {
+  IClassifier,
+  ClassificationResult,
+} from './classification.interface';
+import {
+  RequestUrgency,
+  RequestSentiment,
+} from '../requests/entities/request.entity';
 
 const successResult: ClassificationResult = {
   category: 'BILLING',
   urgency: RequestUrgency.HIGH,
   sentiment: RequestSentiment.NEGATIVE,
   suggestedReply: 'We will look into your billing issue.',
-  tokenUsage: { inputTokens: 150, outputTokens: 40, estimatedCostUsd: 0.000031 },
+  tokenUsage: {
+    inputTokens: 150,
+    outputTokens: 40,
+    estimatedCostUsd: 0.000031,
+  },
 };
 
 describe('ClassificationService', () => {

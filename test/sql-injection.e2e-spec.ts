@@ -73,7 +73,8 @@ describe('SQL Injection (e2e)', () => {
     });
 
     it('should safely store UNION SELECT payload in body', async () => {
-      const payload = "' UNION SELECT password_hash FROM users WHERE email='admin@test.com' --";
+      const payload =
+        "' UNION SELECT password_hash FROM users WHERE email='admin@test.com' --";
 
       const res = await request(app.getHttpServer())
         .post('/v1/requests')

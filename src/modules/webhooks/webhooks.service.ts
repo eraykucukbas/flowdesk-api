@@ -2,7 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { IRequestRepository } from '../requests/requests.repository.interface';
 import { REQUEST_REPOSITORY } from '../requests/requests.repository.interface';
 import { ClassificationService } from '../classification/classification.service';
-import { RequestEvent, RequestEventType } from '../requests/entities/request-event.entity';
+import {
+  RequestEvent,
+  RequestEventType,
+} from '../requests/entities/request-event.entity';
 import { InboundWebhookDto } from './dto/inbound-webhook.dto';
 import { Request } from '../requests/entities/request.entity';
 import { DataSource } from 'typeorm';

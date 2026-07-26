@@ -19,15 +19,15 @@ export class WebhookSignatureGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const req = context
-      .switchToHttp()
-      .getRequest<RawBodyRequest<Request>>();
+    const req = context.switchToHttp().getRequest<RawBodyRequest<Request>>();
 
     const tenantId = req.headers['x-tenant-id'] as string | undefined;
     const signature = req.headers['x-signature'] as string | undefined;
 
     if (!tenantId || !signature) {
-      throw new UnauthorizedException('Missing x-tenant-id or x-signature header');
+      throw new UnauthorizedException(
+        'Missing x-tenant-id or x-signature header',
+      );
     }
 
     const rawBody = req.rawBody;

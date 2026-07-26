@@ -5,7 +5,10 @@ import { DataSource } from 'typeorm';
 import { envSchema } from '../src/config/env.validation';
 import { Tenant } from '../src/modules/tenants/entities/tenant.entity';
 import { User } from '../src/modules/users/entities/user.entity';
-import { Request, RequestChannel } from '../src/modules/requests/entities/request.entity';
+import {
+  Request,
+  RequestChannel,
+} from '../src/modules/requests/entities/request.entity';
 import { RequestEvent } from '../src/modules/requests/entities/request-event.entity';
 import { TypeOrmRequestRepository } from '../src/modules/requests/requests.repository';
 import { TypeOrmTenantRepository } from '../src/modules/tenants/tenants.repository';
@@ -68,18 +71,18 @@ describe('Tenant Scope — Integration', () => {
       'DELETE FROM request_events WHERE request_id IN (SELECT id FROM requests WHERE tenant_id IN ($1, $2))',
       [tenantA.id, tenantB.id],
     );
-    await dataSource.query(
-      'DELETE FROM requests WHERE tenant_id IN ($1, $2)',
-      [tenantA.id, tenantB.id],
-    );
-    await dataSource.query(
-      'DELETE FROM users WHERE tenant_id IN ($1, $2)',
-      [tenantA.id, tenantB.id],
-    );
-    await dataSource.query(
-      'DELETE FROM tenants WHERE id IN ($1, $2)',
-      [tenantA.id, tenantB.id],
-    );
+    await dataSource.query('DELETE FROM requests WHERE tenant_id IN ($1, $2)', [
+      tenantA.id,
+      tenantB.id,
+    ]);
+    await dataSource.query('DELETE FROM users WHERE tenant_id IN ($1, $2)', [
+      tenantA.id,
+      tenantB.id,
+    ]);
+    await dataSource.query('DELETE FROM tenants WHERE id IN ($1, $2)', [
+      tenantA.id,
+      tenantB.id,
+    ]);
     await dataSource.destroy();
   });
 
