@@ -35,7 +35,7 @@ export class WebhookSignatureGuard implements CanActivate {
       throw new UnauthorizedException('Raw body not available');
     }
 
-    const tenant = await this.tenantRepo.findById(tenantId);
+    const tenant = await this.tenantRepo.findByIdWithSecret(tenantId);
     if (!tenant) {
       throw new UnauthorizedException('Invalid tenant');
     }

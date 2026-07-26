@@ -33,6 +33,14 @@ export class TypeOrmTenantRepository implements ITenantRepository {
     return this.repo.findOne({ where: { id } });
   }
 
+  async findByIdWithSecret(id: string): Promise<Tenant | null> {
+    return this.repo
+      .createQueryBuilder('tenant')
+      .addSelect('tenant.webhookSecret')
+      .where('tenant.id = :id', { id })
+      .getOne();
+  }
+
   async createTenantWithOwner(
     data: CreateTenantWithOwnerData,
   ): Promise<{ tenant: Tenant; user: User }> {

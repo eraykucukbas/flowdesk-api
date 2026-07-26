@@ -12,6 +12,7 @@ export interface ITenantRepository {
   save(tenant: Tenant): Promise<Tenant>;
   findBySlug(slug: string): Promise<Tenant | null>;
   findById(id: string): Promise<Tenant | null>;
+  findByIdWithSecret(id: string): Promise<Tenant | null>;
   createTenantWithOwner(
     data: CreateTenantWithOwnerData,
   ): Promise<{ tenant: Tenant; user: User }>;
