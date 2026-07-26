@@ -1,1 +1,1 @@
-// correlation-id, logging interceptors will be added here
+export { TenantScopeInterceptor } from './tenant-scope.interceptor';
