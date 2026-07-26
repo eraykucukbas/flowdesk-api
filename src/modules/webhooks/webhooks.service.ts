@@ -2,8 +2,10 @@ import { Inject, Injectable } from '@nestjs/common';
 import type { IRequestRepository } from '../requests/requests.repository.interface';
 import { REQUEST_REPOSITORY } from '../requests/requests.repository.interface';
 import { ClassificationService } from '../classification/classification.service';
+import { RequestEvent, RequestEventType } from '../requests/entities/request-event.entity';
 import { InboundWebhookDto } from './dto/inbound-webhook.dto';
 import { Request } from '../requests/entities/request.entity';
+import { DataSource } from 'typeorm';
 
 export interface InboundResult {
   request: Request;
@@ -16,6 +18,7 @@ export class WebhooksService {
     @Inject(REQUEST_REPOSITORY)
     private readonly requestRepo: IRequestRepository,
     private readonly classificationService: ClassificationService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async handleInbound(
@@ -45,6 +48,20 @@ export class WebhooksService {
     });
 
     const saved = await this.requestRepo.save(request);
+
+    const event = this.dataSource.getRepository(RequestEvent).create({
+      requestId: saved.id,
+      type: RequestEventType.LLM_CLASSIFIED,
+      payload: {
+        category: classification.category,
+        urgency: classification.urgency,
+        sentiment: classification.sentiment,
+        suggestedReply: classification.suggestedReply,
+        tokenUsage: classification.tokenUsage,
+      },
+    });
+    await this.dataSource.getRepository(RequestEvent).save(event);
+
     return { request: saved, created: true };
   }
 }

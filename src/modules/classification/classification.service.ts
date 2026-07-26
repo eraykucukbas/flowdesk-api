@@ -8,6 +8,7 @@ const FALLBACK_RESULT: ClassificationResult = {
   urgency: RequestUrgency.MEDIUM,
   sentiment: RequestSentiment.NEUTRAL,
   suggestedReply: '',
+  tokenUsage: { inputTokens: 0, outputTokens: 0, estimatedCostUsd: 0 },
 };
 
 @Injectable()
