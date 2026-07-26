@@ -3,7 +3,7 @@
   "rootDir": "..",
   "roots": ["<rootDir>/test"],
   "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "testRegex": ".(e2e|integration)-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
