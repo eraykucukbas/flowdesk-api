@@ -1,3 +1,4 @@
+import { randomBytes } from 'node:crypto';
 import {
   BeforeInsert,
   Column,
@@ -21,6 +22,9 @@ export class Tenant {
   @Column({ unique: true })
   slug!: string;
 
+  @Column({ name: 'webhook_secret', type: 'varchar' })
+  webhookSecret!: string;
+
   @OneToMany(() => User, (user) => user.tenant)
   users!: User[];
 
@@ -34,7 +38,10 @@ export class Tenant {
   deletedAt!: Date | null;
 
   @BeforeInsert()
-  generateSlug() {
+  generateDefaults() {
+    if (!this.webhookSecret) {
+      this.webhookSecret = randomBytes(32).toString('hex');
+    }
     if (!this.slug) {
       const map: Record<string, string> = {
         ğ: 'g',
@@ -51,5 +58,10 @@ export class Tenant {
         .replace(/[^a-z0-9\s-]/g, '')
         .replace(/\s+/g, '-');
     }
+  }
+
+  regenerateWebhookSecret(): string {
+    this.webhookSecret = randomBytes(32).toString('hex');
+    return this.webhookSecret;
   }
 }
