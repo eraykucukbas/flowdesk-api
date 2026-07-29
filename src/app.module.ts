@@ -14,6 +14,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { WebhooksModule } from './modules/webhooks/webhooks.module';
 import { JwtAuthGuard, RolesGuard } from './common/guards';
 import { TenantScopeInterceptor } from './common/interceptors';
+import { RedisModule } from './common/cache/redis.module';
 
 @Module({
   imports: [
@@ -63,6 +64,7 @@ import { TenantScopeInterceptor } from './common/interceptors';
       { name: 'short', ttl: 60000, limit: 20 },
       { name: 'auth', ttl: 60000, limit: 5 },
     ]),
+    RedisModule,
     HealthModule,
     TenantsModule,
     UsersModule,
