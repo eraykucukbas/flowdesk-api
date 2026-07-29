@@ -23,7 +23,7 @@ export class WebhooksController {
   @Public()
   @UseGuards(WebhookSignatureGuard)
   @Post('inbound')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.ACCEPTED)
   async handleInbound(
     @Headers('x-tenant-id') tenantId: string,
     @Body() dto: InboundWebhookDto,
