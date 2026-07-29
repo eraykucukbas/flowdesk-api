@@ -9,6 +9,7 @@ export const envSchema = z.object({
   JWT_SECRET: z.string().min(1),
   JWT_REFRESH_SECRET: z.string().min(1),
   LLM_API_KEY: z.string().min(1),
+  REDIS_URL: z.string().url(),
 });
 
 export type Env = z.infer<typeof envSchema>;

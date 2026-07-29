@@ -6,12 +6,14 @@ import { RequestNotFoundException } from '../../common/exceptions/request-not-fo
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { ListRequestsQueryDto } from './dto/list-requests-query.dto';
 import { PaginatedResult } from '../../common/pagination/paginated';
+import { CacheService } from '../../common/cache/cache.service';
 
 @Injectable()
 export class RequestsService {
   constructor(
     @Inject(REQUEST_REPOSITORY)
     private readonly repo: IRequestRepository,
+    private readonly cache: CacheService,
   ) {}
 
   async create(tenantId: string, data: Partial<Request>): Promise<Request> {
@@ -27,10 +29,17 @@ export class RequestsService {
   }
 
   async findOne(tenantId: string, id: string): Promise<Request> {
+    const cacheKey = this.cache.requestKey(tenantId, id);
+
+    const cached = await this.cache.get<Request>(cacheKey);
+    if (cached) return cached;
+
     const request = await this.repo.findById(tenantId, id);
     if (!request) {
       throw new RequestNotFoundException(id);
     }
+
+    await this.cache.set(cacheKey, request);
     return request;
   }
 
@@ -42,7 +51,9 @@ export class RequestsService {
     const request = await this.findOne(tenantId, id);
     if (dto.title !== undefined) request.title = dto.title;
     if (dto.body !== undefined) request.body = dto.body;
-    return this.repo.save(request);
+    const saved = await this.repo.save(request);
+    await this.cache.del(this.cache.requestKey(tenantId, id));
+    return saved;
   }
 
   async changeStatus(
@@ -73,11 +84,14 @@ export class RequestsService {
       );
     }
 
-    return this.repo.save(request);
+    const saved = await this.repo.save(request);
+    await this.cache.del(this.cache.requestKey(tenantId, id));
+    return saved;
   }
 
   async remove(tenantId: string, id: string): Promise<void> {
     const request = await this.findOne(tenantId, id);
     await this.repo.softRemove(request);
+    await this.cache.del(this.cache.requestKey(tenantId, id));
   }
 }
