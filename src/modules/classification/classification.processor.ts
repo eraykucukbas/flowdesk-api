@@ -1,4 +1,4 @@
-import { Processor, WorkerHost } from '@nestjs/bullmq';
+import { OnWorkerEvent, Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
 import { DataSource } from 'typeorm';
@@ -30,9 +30,15 @@ export class ClassificationProcessor extends WorkerHost {
   async process(job: Job<ClassificationJobData>): Promise<void> {
     const { requestId, tenantId, text } = job.data;
 
-    this.logger.log(`Classifying request ${requestId} (attempt ${job.attemptsMade + 1})`);
+    this.logger.log(
+      `Classifying request ${requestId} (attempt ${job.attemptsMade + 1}/${job.opts.attempts ?? 3})`,
+    );
 
     const classification = await this.classificationService.classify(text);
+
+    if (classification.category === 'UNCLASSIFIED') {
+      throw new Error('Classification returned UNCLASSIFIED — retrying');
+    }
 
     const requestRepo = this.dataSource.getRepository(Request);
     const request = await requestRepo.findOne({
@@ -63,6 +69,35 @@ export class ClassificationProcessor extends WorkerHost {
     });
     await eventRepo.save(event);
 
-    this.logger.log(`Request ${requestId} classified as ${classification.category}`);
+    this.logger.log(
+      `Request ${requestId} classified as ${classification.category}`,
+    );
+  }
+
+  @OnWorkerEvent('failed')
+  async onFailed(job: Job<ClassificationJobData>, error: Error): Promise<void> {
+    const isLastAttempt = job.attemptsMade >= (job.opts.attempts ?? 3);
+
+    if (isLastAttempt) {
+      this.logger.error(
+        `Classification permanently failed for request ${job.data.requestId} after ${job.attemptsMade} attempts: ${error.message}`,
+      );
+
+      const eventRepo = this.dataSource.getRepository(RequestEvent);
+      const event = eventRepo.create({
+        requestId: job.data.requestId,
+        type: RequestEventType.CLASSIFICATION_FAILED,
+        payload: {
+          error: error.message,
+          attempts: job.attemptsMade,
+          lastAttemptAt: new Date().toISOString(),
+        },
+      });
+      await eventRepo.save(event);
+    } else {
+      this.logger.warn(
+        `Classification attempt ${job.attemptsMade}/${job.opts.attempts ?? 3} failed for request ${job.data.requestId}: ${error.message}`,
+      );
+    }
   }
 }
