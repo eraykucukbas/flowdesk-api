@@ -15,7 +15,7 @@ FlowDesk is a **B2B support/request management API**. External customer messages
 
 ### How Requests Arrive
 
-1. **Webhook** — External systems (WhatsApp, email gateway, web forms) send messages to `POST /v1/webhooks/inbound`. The message is classified by an LLM and stored as a request. This is the primary intake channel.
+1. **Webhook** — External systems (WhatsApp, email gateway, web forms) send messages to `POST /v1/webhooks/inbound`. The request is saved immediately (202 Accepted) and classified by an LLM asynchronously via a BullMQ job queue. This is the primary intake channel.
 2. **Manual entry** — Agents create requests via `POST /v1/requests` for phone calls or walk-ins.
 
 ### Onboarding
@@ -29,6 +29,8 @@ Self-service registration: `POST /v1/auth/register` creates a tenant and its fir
 | Runtime | Node.js 24, TypeScript 5 |
 | Framework | NestJS 11 |
 | Database | PostgreSQL 16, TypeORM |
+| Cache | Redis 7 (cache-aside, 5min TTL) |
+| Queue | BullMQ (Redis-backed, exponential backoff) |
 | Auth | JWT (access + refresh), argon2, Passport |
 | LLM | Google Gemini 2.0 Flash |
 | Logging | Pino (structured JSON, correlation ID) |
@@ -44,8 +46,11 @@ graph LR
     Client([Client / Agent]) -->|JWT| API[NestJS API]
     Webhook([External System]) -->|HMAC Signature| API
     API --> DB[(PostgreSQL)]
-    API -->|Classify text| LLM[Gemini 2.0 Flash]
-    API -->|Structured logs| Pino[Pino Logger]
+    API --> Redis[(Redis)]
+    Redis -->|Job Queue| Worker[BullMQ Worker]
+    Worker -->|Classify| LLM[Gemini 2.0 Flash]
+    Worker -->|Update| DB
+    API -->|Cache-aside| Redis
 
     subgraph API Internals
         direction TB
@@ -63,6 +68,8 @@ graph LR
 - **Port/adapter repositories** — interface (port) + TypeORM implementation (adapter), wired via Symbol token DI.
 - **Rich entity** — `Request` has state transition methods (`markInProgress`, `markResolved`, `close`, `reopen`). Status is never assigned directly.
 - **Shared-schema multi-tenancy** — `tenant_id` column on every scoped table, enforced at JWT → repository → response interceptor.
+- **Redis cache-aside** — `GET /v1/requests/:id` reads from Redis first (5min TTL), falls back to DB. Invalidated on write/delete.
+- **Async classification** — Webhook returns 202, BullMQ worker classifies in background. 3 retries with exponential backoff (2s → 4s → 8s). Dead-letter: `CLASSIFICATION_FAILED` event on permanent failure.
 
 See [Architecture Decision Records](docs/adr/) for detailed rationale.
 
@@ -131,6 +138,7 @@ npm run test:cov
 ```
 
 **Test summary:** 28+ tests across 4 test suites:
+
 - Unit tests — ClassificationService with mocked LLM (5 tests)
 - Integration tests — tenant scope at repository layer with real Postgres (7 tests)
 - E2E happy path — full API lifecycle: auth → CRUD → RBAC → webhook → idempotency (16 tests)
@@ -150,8 +158,10 @@ src/
     users/          User entity, ADMIN creates AGENTs
     requests/       Request CRUD, state machine, cursor pagination
     webhooks/       Inbound webhook, HMAC guard, idempotency
-    classification/ LLM classifier port/adapter (Gemini), prompt versioning
+    classification/ LLM classifier port/adapter (Gemini), BullMQ processor, prompt versioning
     health/         Health check endpoint
+  common/
+    cache/          Redis module, CacheService (cache-aside)
 ```
 
 ## Known Limitations
@@ -168,11 +178,4 @@ src/
 
 - **Pagination:** Cursor-only. Admin interfaces requiring page numbers and total counts would need an offset strategy alongside it, selected via query parameters (Strategy pattern).
 
-- **No queue / cache / metrics:** Deliberately out of scope for v0.1 — see [ADR-004](docs/adr/004-synchronous-llm.md) and v0.2 plan below.
-
-## v0.2 Roadmap
-
-- Redis cache-aside with TTL + invalidation
-- BullMQ job queue for async LLM classification (webhook returns 202)
-- Retry with exponential backoff + jitter, dead-letter queue
-- n8n example workflow
+- **No metrics / observability:** Prometheus, Grafana, OpenTelemetry are out of scope. Pino structured logs are the only observability layer.
