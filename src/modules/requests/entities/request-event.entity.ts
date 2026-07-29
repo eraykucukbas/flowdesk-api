@@ -12,6 +12,7 @@ import { Request } from './request.entity';
 export enum RequestEventType {
   CREATED = 'CREATED',
   LLM_CLASSIFIED = 'LLM_CLASSIFIED',
+  CLASSIFICATION_FAILED = 'CLASSIFICATION_FAILED',
   STATUS_CHANGED = 'STATUS_CHANGED',
 }
 
