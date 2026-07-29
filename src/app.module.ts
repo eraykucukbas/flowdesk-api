@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LoggerModule } from 'nestjs-pino';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { BullModule } from '@nestjs/bullmq';
 import { envSchema, Env } from './config/env.validation';
 import { HealthModule } from './modules/health/health.module';
 import { TenantsModule } from './modules/tenants/tenants.module';
@@ -64,6 +65,12 @@ import { RedisModule } from './common/cache/redis.module';
       { name: 'short', ttl: 60000, limit: 20 },
       { name: 'auth', ttl: 60000, limit: 5 },
     ]),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService<Env>) => ({
+        connection: { url: config.get('REDIS_URL') },
+      }),
+    }),
     RedisModule,
     HealthModule,
     TenantsModule,
