@@ -2,6 +2,10 @@
 
 [![CI](https://github.com/eraykucukbas/flowdesk-api/actions/workflows/ci.yml/badge.svg)](https://github.com/eraykucukbas/flowdesk-api/actions/workflows/ci.yml)
 
+> **Portfolio project.** Built to demonstrate production backend patterns —
+> multi-tenant isolation, LLM integration, webhook idempotency, queueing and testing.
+> Not affiliated with any existing product of the same or similar name.
+
 Multi-tenant complaint and request management API with LLM-powered classification, webhook ingestion, and role-based access control.
 
 ## What It Does
